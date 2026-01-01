@@ -4,7 +4,7 @@
 
 constexpr int BB_COUNT = 15;
 
-enum ActiveColour {
+enum PlayerColour {
     BLACK, 
     WHITE
 };
@@ -32,7 +32,7 @@ class GameState {
 // PRIVATE MEMBER VARIABLES
 private:
     uint64_t m_bboards[BB_COUNT];
-    ActiveColour m_activeColour;
+    PlayerColour m_activeColour;
     int m_castlingRights;
     int m_enPassant;
     int m_halfMoveClock;
@@ -67,6 +67,19 @@ public:
         m_castlingRights = -1; // TODO: castling rights
         m_halfMoveClock = 0;
         m_fullMoveCount = 0;
+    }
+
+    // Return the pawn bitboard for reading
+    uint64_t getPawnBB(PlayerColour colour) {
+        if (colour == BLACK) {
+            return m_bboards[BLACKPAWNS];
+        }
+        return m_bboards[WHITEPAWNS];
+    }
+
+    // Return the currently active colour
+    PlayerColour getActiveColour() {
+        return m_activeColour;
     }
 
     // Print the GameState
