@@ -69,6 +69,11 @@ public:
         m_fullMoveCount = 0;
     }
 
+    // return the bitboards for reading only
+    const uint64_t* getPosBB() {
+        return m_bboards;
+    }
+
     // Return the pawn bitboard for reading
     uint64_t getPawnBB(PlayerColour colour) {
         if (colour == BLACK) {

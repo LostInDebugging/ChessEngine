@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdint>
+#include <string>
 #include "PieceType.h"
+
 // MAYBE USEFUL LATER IN A BETTER IMPLEMENTATION OF MOVES.
 /*
 enum MoveFlag {
@@ -15,13 +17,19 @@ enum MoveFlag {
 
 class Move {
     // std::uint16_t move;
-    int from;
-    int to;
-    PieceType movePiece;
-    PieceType capture;
-    PieceType Promotion;
-    int EnPassant;
-    int Castling;
+    int m_From;
+    int m_To;
+    PieceType m_MovePiece;
+    PieceType m_Capture;
+    PieceType m_Promotion;
+    int m_EnPassant;
+    int m_Castling;
 public:
+    Move (int from, int to, PieceType movePiece, PieceType capture, 
+        PieceType promotion, int enPassant, int castling);
+        
+    void printMove();
 
+private:
+    std::string getPieceName(PieceType piece);
 };
