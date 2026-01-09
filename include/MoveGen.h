@@ -1,9 +1,11 @@
+#ifndef MOVEGEN_H
+#define MOVEGEN_H
+
 #include <iostream>
 #include <vector>
 #include <bit>
 #include "Move.h"
 #include "GameState.h"
-#include "Rays.h"
 
 class MoveGen {
 public:
@@ -12,3 +14,5 @@ public:
 private:
     static void extractMoves(std::vector<Move>& moves, uint64_t bb, int offset);
 };
+
+#endif

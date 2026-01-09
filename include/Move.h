@@ -1,7 +1,10 @@
+#ifndef MOVE_H
+#define MOVE_H
+
 #include <iostream>
 #include <cstdint>
 #include <string>
-#include "PieceType.h"
+#include "BoardConstants.h"
 
 // MAYBE USEFUL LATER IN A BETTER IMPLEMENTATION OF MOVES.
 /*
@@ -33,3 +36,5 @@ public:
 private:
     std::string getPieceName(PieceType piece);
 };
+
+#endif

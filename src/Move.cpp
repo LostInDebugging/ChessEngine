@@ -1,8 +1,3 @@
-#include <iostream>
-#include <cstdint>
-#include <string>
-#include "PieceType.h"
-
 #include "Move.h"
 // MAYBE USEFUL LATER IN A BETTER IMPLEMENTATION OF MOVES.
 /*
@@ -24,12 +19,13 @@ Move::Move (int from, int to, PieceType movePiece, PieceType capture,
 }
 
 void Move::printMove() {
-    std::cout << getPieceName(m_MovePiece) + " from " << m_From << " to " << m_To;
+    std::cout << getPieceName(m_MovePiece) + " from " << m_From << " to " << m_To << "\n";
 }
 
 std::string Move::getPieceName(PieceType piece) {
     switch(piece) {
-        case PAWN:
+        case PieceType::PAWN:
             return "pawn";
     }
+    return "invalid";
 }

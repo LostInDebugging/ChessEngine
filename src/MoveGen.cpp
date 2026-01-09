@@ -1,3 +1,4 @@
+#include <bit>
 #include "MoveGen.h"
 
 std::vector<Move> MoveGen::generateSinglePawnPushes(GameState state) {
@@ -5,10 +6,10 @@ std::vector<Move> MoveGen::generateSinglePawnPushes(GameState state) {
     PlayerColour activeColour = state.getActiveColour();
 
     std::vector<Move> moves;
-    if (activeColour == WHITE) {
-        uint64_t singlePushes = ((posBB[WHITEPAWNS] & ~Rays::RANKS[7]) << 8) & posBB[EMPTY];
+    if (activeColour == PlayerColour::WHITE) {
+        uint64_t singlePushes = ((posBB[bbIndex(bbVal::WHITEPAWNS)] & ~Rays::RANKS[7]) << 8) & posBB[bbIndex(bbVal::EMPTY)];
         extractMoves(moves, singlePushes, -8);
-        uint64_t doublePushes = ((singlePushes & Rays::RANKS[2]) << 8) & posBB[EMPTY];
+        uint64_t doublePushes = ((singlePushes & Rays::RANKS[2]) << 8) & posBB[bbIndex(bbVal::EMPTY)];
         extractMoves(moves, doublePushes, -16);
     }
 
@@ -21,6 +22,6 @@ void MoveGen::extractMoves(std::vector<Move>& moves, uint64_t bb, int offset) {
         int from = to + offset;
         bb &= ~(1ull << to);
 
-        moves.push_back(Move(from, to, PAWN, PAWN, PAWN, -1, -1));
+        moves.push_back(Move(from, to, PieceType::PAWN, PieceType::PAWN, PieceType::PAWN, -1, -1));
     }
 }

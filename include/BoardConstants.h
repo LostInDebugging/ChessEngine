@@ -1,4 +1,48 @@
+#ifndef BOARDCONSTANTS_H
+#define BOARDCONSTANTS_H
+
 #include <cstdint>
+
+constexpr int BB_COUNT = 15;
+
+enum class PieceType {
+    PAWN,
+    KNIGHT,
+    BISHOP,
+    ROOK,
+    QUEEN,
+    KING,
+    EMPTY,
+    INVALID
+};
+
+enum class PlayerColour {
+    BLACK, 
+    WHITE,
+    INVALID
+};
+
+enum class bbVal {
+    BLACKPAWNS,
+    BLACKKNIGHTS,
+    BLACKBISHOPS,
+    BLACKROOKS,
+    BLACKQUEENS,
+    BLACKKING,
+    WHITEPAWNS,
+    WHITEKNIGHTS,
+    WHITEBISHOPS,
+    WHITEROOKS,
+    WHITEQUEENS,
+    WHITEKING,
+    BLACKPIECES,
+    WHITEPIECES,
+    EMPTY
+};
+
+constexpr size_t bbIndex(bbVal v) {
+    return static_cast<size_t>(v);
+}
 
 namespace Rays {
     constexpr uint64_t make_rank_mask(int rank_index) {
@@ -31,3 +75,5 @@ namespace Rays {
         make_file_mask(7)
     };
 }
+
+#endif
