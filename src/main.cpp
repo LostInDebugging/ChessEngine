@@ -1,12 +1,11 @@
 #include "GameState.h"
 #include "MoveGen.h"
-
-class GameState;
+#include "Helpers.h"
 
 int main() {
     GameState *gameState = new GameState;
 
-    gameState->PrintGameState();
+    Helpers::printGameState(*gameState, Helpers::PRINT_LETTER_REP);
 
     std::vector moves = MoveGen::generatePawnPushes(*gameState);
     for (Move move : moves) {

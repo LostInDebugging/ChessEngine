@@ -3,8 +3,6 @@
 
 #include <cstdint>
 
-constexpr int BB_COUNT = 14;
-
 enum class PieceType {
     PAWN,
     KNIGHT,
@@ -22,32 +20,11 @@ enum class PlayerColour {
     INVALID
 };
 
-enum class bbVal {
-    BLACKPAWNS,
-    BLACKKNIGHTS,
-    BLACKBISHOPS,
-    BLACKROOKS,
-    BLACKQUEENS,
-    BLACKKING,
-    WHITEPAWNS,
-    WHITEKNIGHTS,
-    WHITEBISHOPS,
-    WHITEROOKS,
-    WHITEQUEENS,
-    WHITEKING,
-    BLACKPIECES,
-    WHITEPIECES,
-    EMPTY,
-    INVALID
+struct Piece {
+    PieceType piece;
+    PlayerColour colour;
 };
 
-constexpr size_t bbIndex(bbVal v) {
-    if (v == bbVal::EMPTY || v == bbVal::INVALID) {
-        // should never happen
-        return 100;
-    }
-    return static_cast<size_t>(v);
-}
 
 namespace Rays {
     constexpr uint64_t make_rank_mask(int rank_index) {
