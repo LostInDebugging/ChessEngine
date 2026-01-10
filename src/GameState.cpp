@@ -1,7 +1,51 @@
 #include "GameState.h"
 
 GameState::GameState(std::string FEN) {
+    std::string posSubstr = FEN.substr(0, FEN.find(' '));
 
+    int rank = 7;
+    int file = 0;
+    for (char c : posSubstr) {
+        int index = rank * 8 + file;
+        if (c == '/') {
+            rank -= 1;
+            file = 0;
+        } else if (c >= '1' && c <= '8') {
+            file += (c - '0');
+        } else {
+            file += 1;
+
+            if (isupper(c)) {
+                m_wpbb |= (1ull << index);
+            } else {
+                m_bpbb |= (1ull << index);
+            }
+            
+            switch(tolower(c)) {
+                case 'p':
+                    m_pbb |= (1ull << index);
+                    break;
+                case 'n':
+                    m_nbb |= (1ull << index);
+                    break;
+                case 'b':
+                    m_bbb |= (1ull << index);
+                    break;
+                case 'r':
+                    m_rbb |= (1ull << index);
+                    break;
+                case 'q':
+                    m_qbb |= (1ull << index);
+                    break;
+                case 'k':
+                    m_kbb |= (1ull << index);
+                    break;
+                default:
+                    // should never enter here
+                    return;
+            }
+        }
+    }
 }
 
 // Create a new Chess game with the starting position

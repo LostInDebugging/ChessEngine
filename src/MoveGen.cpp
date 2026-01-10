@@ -7,9 +7,9 @@ std::vector<Move> MoveGen::generatePawnPushes(GameState g) {
 
     std::vector<Move> moves;
     if (activeColour == PlayerColour::WHITE) {
-        uint64_t singlePushes = ((g.pieceBB({PieceType::PAWN, activeColour}) & ~Rays::RANKS[7]) << 8) & g.getEmptyBB();
+        uint64_t singlePushes = ((g.pieceBB({PieceType::PAWN, activeColour}) & ~Rays::RANK_7) << 8) & g.getEmptyBB();
         extractMoves(moves, singlePushes, -8);
-        uint64_t doublePushes = ((singlePushes & Rays::RANKS[2]) << 8) & g.getEmptyBB();
+        uint64_t doublePushes = ((singlePushes & Rays::RANK_3) << 8) & g.getEmptyBB();
         extractMoves(moves, doublePushes, -16);
     }
 
