@@ -1,7 +1,13 @@
 #include "GameState.h"
 
 GameState::GameState(std::string FEN) {
-    std::string posSubstr = FEN.substr(0, FEN.find(' '));
+    int posEndIndex = FEN.find(' ');
+    std::string posSubstr = FEN.substr(0, posEndIndex);
+
+    int actColIndex = FEN.find(' ', posEndIndex);
+    std::string actCol = FEN.substr(posEndIndex + 1, 1);
+
+    m_activeColour = actCol == "w" ? PlayerColour::WHITE : PlayerColour::BLACK;
 
     int rank = 7;
     int file = 0;
