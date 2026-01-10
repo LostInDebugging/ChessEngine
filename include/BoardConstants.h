@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-constexpr int BB_COUNT = 15;
+constexpr int BB_COUNT = 14;
 
 enum class PieceType {
     PAWN,
@@ -37,16 +37,21 @@ enum class bbVal {
     WHITEKING,
     BLACKPIECES,
     WHITEPIECES,
-    EMPTY
+    EMPTY,
+    INVALID
 };
 
 constexpr size_t bbIndex(bbVal v) {
+    if (v == bbVal::EMPTY || v == bbVal::INVALID) {
+        // should never happen
+        return 100;
+    }
     return static_cast<size_t>(v);
 }
 
 namespace Rays {
     constexpr uint64_t make_rank_mask(int rank_index) {
-        return 255ull << rank_index;
+        return 255ull << (rank_index * 8);
     }
 
     constexpr uint64_t make_file_mask(int file_index) {

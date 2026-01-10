@@ -32,6 +32,9 @@ public:
     // Return the pawn bitboard for reading
     uint64_t getPawnBB(PlayerColour colour);
 
+    // Return the empty bitboard
+    uint64_t getEmptyBB();
+
     // Return the currently active colour
     PlayerColour getActiveColour();
 

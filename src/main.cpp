@@ -8,7 +8,7 @@ int main() {
 
     gameState->PrintGameState();
 
-    std::vector moves = MoveGen::generateSinglePawnPushes(*gameState);
+    std::vector moves = MoveGen::generatePawnPushes(*gameState);
     for (Move move : moves) {
         move.printMove();
     }

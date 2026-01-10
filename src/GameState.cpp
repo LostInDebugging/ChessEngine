@@ -20,7 +20,6 @@ GameState::GameState() {
     m_bboards[bbIndex(bbVal::WHITEKING)] = 0b00010000ull;
     m_bboards[bbIndex(bbVal::BLACKPIECES)] = 0b1111111111111111ull << 48;
     m_bboards[bbIndex(bbVal::WHITEPIECES)] = 0b1111111111111111ull;
-    m_bboards[bbIndex(bbVal::EMPTY)] = std::numeric_limits<unsigned long long>::max() ^ (m_bboards[bbIndex(bbVal::BLACKPIECES)] | m_bboards[bbIndex(bbVal::WHITEPIECES)]);
 
     m_activeColour = PlayerColour::WHITE;
     m_castlingRights = -1; // TODO: castling rights
@@ -51,13 +50,17 @@ void GameState::PrintGameState() {
     std::cout << "---------------------------------\n";
     for (int i = 7; i >= 0; i--) {
         std::cout << "| ";
-        for (int j = 7; j >= 0; j--) {
+        for (int j = 0; j < 8; j++) {
             bbVal piece = getPieceAtSquare(i * 8 + j);
             std::cout << getPieceChar(piece);
             std::cout << " | ";
         }
         std::cout << "\n---------------------------------\n";
     }
+}
+
+uint64_t GameState::getEmptyBB() {
+    return ~(m_bboards[bbIndex(bbVal::WHITEPIECES)] | m_bboards[bbIndex(bbVal::BLACKPIECES)]);
 }
 
 // PRIVATE METHOD DEFINITIONS
@@ -100,7 +103,7 @@ char GameState::getPieceChar(bbVal Piece) {
 bbVal GameState::getPieceAtSquare(int square) {
     unsigned long long bitMask = 1ull << square;
     
-    if (bitMask & m_bboards[bbIndex(bbVal::EMPTY)]) {
+    if (bitMask & getEmptyBB()) {
         return bbVal::EMPTY;
     } else if (bitMask & m_bboards[bbIndex(bbVal::WHITEPIECES)]) {
         // return correct white piece
@@ -118,7 +121,7 @@ bbVal GameState::getPieceAtSquare(int square) {
             return bbVal::WHITEKING;
         } else {
             // Should never reach here
-            return bbVal::EMPTY;
+            return bbVal::INVALID;
         }
     } else {
         // return correct black piece
@@ -136,7 +139,7 @@ bbVal GameState::getPieceAtSquare(int square) {
             return bbVal::BLACKKING;
         } else {
             // should never reach here
-            return bbVal::EMPTY;
+            return bbVal::INVALID;
         }
     }
 }

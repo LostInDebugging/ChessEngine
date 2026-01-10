@@ -9,7 +9,8 @@
 
 class MoveGen {
 public:
-    static std::vector<Move> generateSinglePawnPushes(GameState state);
+    // generates all single and double pawn pushes. Does not generate promotion moves
+    static std::vector<Move> generatePawnPushes(GameState state);
 
 private:
     static void extractMoves(std::vector<Move>& moves, uint64_t bb, int offset);
