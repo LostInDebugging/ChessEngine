@@ -23,12 +23,11 @@ class Move {
     int m_From;
     int m_To;
     PieceType m_MovePiece;
-    PieceType m_Capture;
     PieceType m_Promotion;
     int m_EnPassant;
     int m_Castling;
 public:
-    Move (int from, int to, PieceType movePiece, PieceType capture, 
+    Move (int from, int to, PieceType movePiece, 
         PieceType promotion, int enPassant, int castling);
         
     void printMove();

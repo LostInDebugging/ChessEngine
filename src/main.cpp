@@ -8,7 +8,17 @@ int main() {
     Helpers::printGameState(*gameState, Helpers::PRINT_LETTER_REP);
 
     std::vector moves = MoveGen::generatePawnPushes(*gameState);
+    std::vector moves1 = MoveGen::generatePawnPromotions(*gameState);
+    std::vector moves2 = MoveGen::generatePawnCaptures(*gameState);
+
     for (Move move : moves) {
+        move.printMove();
+    }
+
+    for (Move move : moves1) {
+        move.printMove();
+    }
+    for (Move move : moves2) {
         move.printMove();
     }
 }

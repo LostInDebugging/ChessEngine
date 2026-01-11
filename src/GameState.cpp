@@ -105,7 +105,7 @@ uint64_t GameState::pieceBB(Piece piece) {
             pbb = m_kbb;
             break;
         default:
-            return 0;
+            pbb = ~pbb;
     }
 
     switch(piece.colour) {
@@ -116,7 +116,7 @@ uint64_t GameState::pieceBB(Piece piece) {
             cbb = m_bpbb;
             break;
         default:
-            return 0;
+            break;
     }
 
     return pbb & cbb;

@@ -11,9 +11,9 @@ enum MoveFlag {
 };
 */
 
-Move::Move (int from, int to, PieceType movePiece, PieceType capture, 
+Move::Move (int from, int to, PieceType movePiece, 
     PieceType promotion, int enPassant, int castling) :
-    m_From(from), m_To(to), m_MovePiece(movePiece), m_Capture(capture), 
+    m_From(from), m_To(to), m_MovePiece(movePiece), 
     m_Promotion(promotion), m_EnPassant(enPassant), m_Castling(castling)
 {
 }
