@@ -18,6 +18,9 @@ namespace Helpers {
 
     // Given a piece, return the corresponding character.
     char getPieceChar(Piece Piece);
+
+    // Given a square on the chessboard, return the index of that square
+    int squareLetterMapToIndex(std::string square);
 }
 
 #endif

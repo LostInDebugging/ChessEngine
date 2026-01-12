@@ -1,13 +1,26 @@
 #include "GameState.h"
+#include "Helpers.h"
 
 GameState::GameState(std::string FEN) {
     int posEndIndex = FEN.find(' ');
     std::string posSubstr = FEN.substr(0, posEndIndex);
 
-    int actColIndex = FEN.find(' ', posEndIndex);
+    int actColIndex = FEN.find(' ', posEndIndex + 1);
     std::string actCol = FEN.substr(posEndIndex + 1, 1);
 
+    int castlingRightsIndex = FEN.find(' ', actColIndex + 1);
+    std::string castlingRights = FEN.substr(actColIndex + 1, castlingRightsIndex - actColIndex);
+
+    int enPassantIndex = FEN.find(' ', castlingRightsIndex + 1);
+    std::string enPassant = FEN.substr(castlingRightsIndex + 1, enPassantIndex - castlingRightsIndex);
+
+    int halfMoveClockIndex = FEN.find(' ', enPassantIndex + 1);
+    std::string halfMoveClock = FEN.substr(enPassantIndex + 1, halfMoveClockIndex - enPassantIndex);
+
+    std::string fullMoveCount = FEN.substr(halfMoveClockIndex + 1);
+
     m_activeColour = actCol == "w" ? PlayerColour::WHITE : PlayerColour::BLACK;
+    m_enPassant = enPassant == "-" ? -1 : Helpers::squareLetterMapToIndex(enPassant);
 
     int rank = 7;
     int file = 0;
@@ -67,6 +80,7 @@ GameState::GameState() {
 
     m_activeColour = PlayerColour::WHITE;
     m_castlingRights = -1; // TODO: castling rights
+    m_enPassant = -1; // TODO: En passant
     m_halfMoveClock = 0;
     m_fullMoveCount = 0;
 }

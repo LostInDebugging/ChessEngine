@@ -3,7 +3,7 @@
 #include "Helpers.h"
 
 int main() {
-    GameState *gameState = new GameState("b1B5/3K2k1/1Q1p4/1P3p2/7P/3PP3/q4np1/1R3R2 b - - 0 1");
+    GameState *gameState = new GameState("b1B5/3K2k1/1Q1p4/1P3p2/7P/3PP3/q4np1/1R3R2 w Kqk a3 205 123");
 
     Helpers::printGameState(*gameState, Helpers::PRINT_LETTER_REP);
 

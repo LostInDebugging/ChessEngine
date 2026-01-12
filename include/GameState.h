@@ -35,9 +35,6 @@ public:
     // Return the currently active colour
     PlayerColour getActiveColour();
 
-    // Print the GameState
-    void PrintGameState();
-
     Piece getPieceAtSquare(int square);
 /*============================================================================*/
 // PRIVATE HELPER METHODS

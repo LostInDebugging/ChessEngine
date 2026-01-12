@@ -77,4 +77,8 @@ namespace Helpers {
                 return 'x';
         }
     }
+
+    int squareLetterMapToIndex(std::string square) {
+        return (square[1] - '1') * 8 + (square[0] - 'a');
+    }
 }
