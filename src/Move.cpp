@@ -26,6 +26,10 @@ std::string Move::getPieceName(PieceType piece) {
     switch(piece) {
         case PieceType::PAWN:
             return "pawn";
+        case PieceType::KNIGHT:
+            return "knight";
+        default:
+            return "invalid";
     }
     return "invalid";
 }

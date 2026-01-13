@@ -2,6 +2,29 @@
 #include "MoveGen.h"
 #include "Helpers.h"
 
+std::vector<Move> MoveGen::generateKnightMoves(GameState g) {
+    std::vector<Move> moves;
+
+    PlayerColour activeColour = g.getActiveColour();
+    uint64_t knightsBB = g.pieceBB({PieceType::KNIGHT, activeColour});
+
+    while (knightsBB != 0) {
+        int from = std::countr_zero(knightsBB);
+        knightsBB &= ~(1ull << from);
+
+        uint64_t knightMovesBB = (attackTable::knightAttacks[from] & ~g.pieceBB({PieceType::INVALID, activeColour}));
+
+        while (knightMovesBB != 0) {
+            int to = std::countr_zero(knightMovesBB);
+            knightMovesBB &= ~(1ull << to);
+
+            moves.push_back(Move(from, to, PieceType::KNIGHT, PieceType::INVALID, -1, -1));
+        }
+    }
+
+    return moves;
+}
+
 std::vector<Move> MoveGen::generatePawnCaptures(GameState g) {
     PlayerColour activeColour = g.getActiveColour();
 
