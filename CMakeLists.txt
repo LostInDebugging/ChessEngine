@@ -10,6 +10,7 @@ add_executable(app
     src/Move.cpp 
     src/MoveGen.cpp
     src/Helpers.cpp
+    src/MagicBB.cpp
 )
 
 target_include_directories(app PRIVATE include)

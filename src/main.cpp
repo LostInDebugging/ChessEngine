@@ -1,6 +1,7 @@
 #include "GameState.h"
 #include "MoveGen.h"
 #include "Helpers.h"
+#include "MagicBB.h"
 
 int main() {
     GameState *gameState = new GameState("b1B5/3K2k1/1Q1p4/1P3p2/7P/3PP3/q4np1/1R3R2 b Kqk a3 205 123");
@@ -25,5 +26,12 @@ int main() {
     }
     for (Move move : moves3) {
         move.printMove();
+    }
+
+    MagicBB::findRookMagics();
+    MagicBB::findBishopMagics();
+
+    for (uint64_t magic : MagicBB::BISHOP_MAGICS) {
+        std::cout << magic << '\n';
     }
 }
