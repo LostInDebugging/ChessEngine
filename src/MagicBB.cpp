@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "MagicBB.h"
+#include "Precompute.h"
 
 namespace MagicBB {
     struct Direction { 
@@ -49,7 +50,6 @@ namespace MagicBB {
         6, 5, 5, 5, 5, 5, 5, 6
     };
 
-
     constexpr Slider ROOK = { ROOK_DIRS, 4, ROOK_BITS };
     constexpr Slider BISHOP = { BISHOP_DIRS, 4, BISHOP_BITS };
 
@@ -68,7 +68,7 @@ namespace MagicBB {
                 cc += dirs[d].dc;
             }
         }
-    return mask;
+        return mask;
     }
 
     uint64_t validSliderMoves(int sq, uint64_t blockers, const Direction* dirs, int nDirs) {
@@ -182,5 +182,37 @@ namespace MagicBB {
         }
 
         return bishopMagics;
+    }
+
+    std::array<uint64_t, 1ull << 12> populateBishopAttackTable() {
+        std::array<uint64_t, 1ull << 12> bishopAttackTable;
+        for (int sq = 0; sq < 64; sq++) {
+            uint64_t magic = BISHOP_MAGICS[sq];
+            uint64_t mask = BISHOP_BLOCKER_MASKS[sq];
+
+            for (uint64_t blockers : bitSubsets(mask)) {
+                int mi = magicIndex(sq, blockers, magic, BISHOP);
+                uint64_t moves = validSliderMoves(sq, blockers, BISHOP.dirs, BISHOP.dirCount);
+                bishopAttackTable[mi] = moves;
+            }
+        }
+
+        return bishopAttackTable;
+    }
+
+    std::array<uint64_t, 1ull << 12> populateRookAttackTable() {
+        std::array<uint64_t, 1ull << 12> rookAttackTable;
+        for (int sq = 0; sq < 64; sq++) {
+            uint64_t magic = ROOK_MAGICS[sq];
+            uint64_t mask = ROOK_BLOCKER_MASKS[sq];
+
+            for (uint64_t blockers : bitSubsets(mask)) {
+                int mi = magicIndex(sq, blockers, magic, ROOK);
+                uint64_t moves = validSliderMoves(sq, blockers, ROOK.dirs, ROOK.dirCount);
+                rookAttackTable[mi] = moves;
+            }
+        }
+
+        return rookAttackTable;
     }
 }

@@ -20,6 +20,10 @@ namespace MagicBB {
     std::array<uint64_t, 64> findRookMagics();
 
     std::array<uint64_t, 64> findBishopMagics();
+
+    std::array<uint64_t, 1ull << 12> populateRookAttackTable();
+
+    std::array<uint64_t, 1ull << 12> populateBishopAttackTable();
 }
 
 #endif
