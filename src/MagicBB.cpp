@@ -3,76 +3,92 @@
 #include <cmath>
 #include <random>
 #include <chrono>
+#include <iostream>
 
 #include "MagicBB.h"
 
 namespace MagicBB {
-    std::array<uint64_t, 64> BISHOP_MAGICS;
-    std::array<uint64_t, 1ull << INDEX_BITS> BISHOP_MOVETABLE;
+    struct Direction { 
+        int dr; 
+        int dc; 
+    };
 
-    std::array<uint64_t, 64> ROOK_MAGICS;
-    std::array<uint64_t, 1ull << INDEX_BITS> ROOK_MOVETABLE;
+    constexpr Direction ROOK_DIRS[] = {
+        { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 }
+    };
 
-    uint64_t getRookBlockerMask(int sq) {
-        uint64_t mask = 0ull;
+    constexpr Direction BISHOP_DIRS[] = {
+        { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 }
+    };
 
-        int row = sq / 8;
-        int col = sq % 8;
+    struct Slider {
+        const Direction* dirs;
+        int dirCount;
+        const int *indexBits;
+    };
 
-        uint64_t pos = 1ull << sq;
+    const int ROOK_BITS[64] = {
+        12, 11, 11, 11, 11, 11, 11, 12,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        12, 11, 11, 11, 11, 11, 11, 12
+    };
 
-        int left = col;
-        while (--left >= 1) {
-            mask |= pos >> (col - left);
+    const int BISHOP_BITS[64] = {
+        6, 5, 5, 5, 5, 5, 5, 6,
+        5, 5, 5, 5, 5, 5, 5, 5,
+        5, 5, 7, 7, 7, 7, 5, 5,
+        5, 5, 7, 9, 9, 7, 5, 5,
+        5, 5, 7, 9, 9, 7, 5, 5,
+        5, 5, 7, 7, 7, 7, 5, 5,
+        5, 5, 5, 5, 5, 5, 5, 5,
+        6, 5, 5, 5, 5, 5, 5, 6
+    };
+
+
+    constexpr Slider ROOK = { ROOK_DIRS, 4, ROOK_BITS };
+    constexpr Slider BISHOP = { BISHOP_DIRS, 4, BISHOP_BITS };
+
+    uint64_t getBlockerMask(int sq, const Direction* dirs, int nDirs) {
+        int r = sq / 8;
+        int c = sq % 8;
+        uint64_t mask = 0;
+
+        for (int d = 0; d < nDirs; d++) {
+            int rr = r + dirs[d].dr;
+            int cc = c + dirs[d].dc;
+
+            while (rr > 0 && rr < 7 && cc > 0 && cc < 7) {
+                mask |= 1ULL << (rr * 8 + cc);
+                rr += dirs[d].dr;
+                cc += dirs[d].dc;
+            }
         }
-
-        int right = col;
-        while (++right < 7) {
-            mask |= pos << (right - col);
-        }
-
-        int up = row;
-        while (++up < 7) {
-            mask |= pos << (8 * (up - row));
-        }
-
-        int down = row;
-        while (--down >= 1) {
-            mask |= pos >> (8 * (row - down));
-        }
-
-        return mask;
+    return mask;
     }
 
-    uint64_t getBishopBlockerMask(int sq) {
-        uint64_t mask = 0ull;
+    uint64_t validSliderMoves(int sq, uint64_t blockers, const Direction* dirs, int nDirs) {
+        int r = sq >> 3;
+        int c = sq & 7;
+        uint64_t moves = 0;
 
-        int row = sq / 8;
-        int col = sq % 8;
+        for (int d = 0; d < nDirs; d++) {
+            int rr = r + dirs[d].dr;
+            int cc = c + dirs[d].dc;
 
-        uint64_t pos = 1ull << sq;
-
-        // tr
-        for (int i = 1; row + i < 7 && col + i < 7; i++) {
-            mask |= pos << (9 * i);
+            while (rr >= 0 && rr < 8 && cc >= 0 && cc < 8) {
+                uint64_t bit = 1ULL << (rr * 8 + cc);
+                moves |= bit;
+                if (blockers & bit) break;
+                rr += dirs[d].dr;
+                cc += dirs[d].dc;
+            }
         }
-
-        // tl 
-        for (int i = 1; row + i < 7 && col - i > 0; i++) {
-            mask |= pos << (7 * i);
-        }
-
-        // br
-        for (int i = 1; row - i > 0 && col + i < 7; i++) {
-            mask |= pos >> (7 * i);
-        }
-
-        // bl
-        for (int i = 1; row - i > 0 && col - i > 0; i++) {
-            mask |= pos >> (9 * i);
-        }
-
-        return mask;
+        return moves;
     }
 
     std::vector<uint64_t> bitSubsets(uint64_t bitset) {
@@ -86,7 +102,7 @@ namespace MagicBB {
             subset += 1;
             subset &= bitset;
 
-            
+
             subsets.push_back(subset);
 
             if (subset == 0ull) {
@@ -97,101 +113,34 @@ namespace MagicBB {
         return subsets;
     }
 
-    uint64_t validRookMoves(int sq, uint64_t blockers) {
-        int row = sq / 8;
-        int col = sq % 8;
-
-        uint64_t pos = 1ull << sq;
-        uint64_t validMoves = 0ull;
-        for (int left = col - 1; left >= 0; left--) {
-            uint64_t move = pos >> (col - left);
-            validMoves |= move;
-            if ((move & blockers) != 0) break;
-        }
-
-        for (int right = col + 1; right < 8; right++) {
-            uint64_t move = pos << (right - col);
-            validMoves |= move;
-            if ((move & blockers) != 0) break;
-        }
-
-        for (int up = row + 1; up < 8; up++) {
-            uint64_t move = pos << ((up - row) * 8);
-            validMoves |= move;
-            if ((move & blockers) != 0) break;
-        }
-
-        for (int down = row - 1; down >= 0; down--) {
-            uint64_t move = pos >> ((row - down) * 8);
-            validMoves |= move;
-            if ((move & blockers) != 0) break;
-        }
-
-        return validMoves;
+    int magicIndex(int sq, uint64_t blockers, uint64_t magic, Slider slider) {
+        return (blockers * magic) >> (64 - slider.indexBits[sq]);
     }
     
-    uint64_t validBishopMoves(int sq, uint64_t blockers) {
-        int row = sq / 8;
-        int col = sq % 8;
-
-        uint64_t pos = 1ull << sq;
-        uint64_t validMoves = 0ull;
-
-        // tr
-        for (int i = 1; row + i < 8 && col + i < 8; i++) {
-            uint64_t move = pos << (9 * i);
-            validMoves |= move;
-            if ((move & blockers) != 0) break;
-        }
-
-        // tl 
-        for (int i = 1; row + i < 8 && col - i >= 0; i++) {
-            uint64_t move = pos << (7 * i);
-            validMoves |= move;
-            if ((move & blockers) != 0) break;
-        }
-
-        // br
-        for (int i = 1; row - i >= 0 && col + i < 8; i++) {
-            uint64_t move = pos >> (7 * i);
-            validMoves |= move;
-            if ((move & blockers) != 0) break;
-        }
-
-        // bl
-        for (int i = 1; row - i >= 0 && col - i >= 0; i++) {
-            uint64_t move = pos >> (9 * i);
-            validMoves |= move;
-            if ((move & blockers) != 0) break;
-        }
-
-        return validMoves;
-    }
-
-    int magicIndex(uint64_t blockers, uint64_t magic) {
-        return (blockers * magic) >> (64 - INDEX_BITS);
-    }
-
     uint64_t gen64Random() {
-        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        // Seed and RNG are static, so this block runs only once
+        static unsigned long long seed = std::random_device{}(); // generate seed once
+        static std::mt19937_64 rng(seed);                       // initialize RNG once
+        static bool printed = false;                            
 
-        std::mt19937 mt(seed);
+        // Print the seed only the first time
+        if (!printed) {
+            std::cout << "Seed used: " << seed << '\n';
+            printed = true;
+        }
 
-        // 3. Define the distribution (e.g., uniform integer distribution)
-        std::uniform_int_distribution<uint64_t> dist(1, ~(0ull));
-
-        // 4. Generate the random number
-        return dist(mt);
+        return rng(); // generate next random number
     }
 
-    bool tryMakeRookTable(int sq, uint64_t magic, std::array<uint64_t, 1ull << INDEX_BITS>& moveTable) {
-        uint64_t mask = getRookBlockerMask(sq);
+    bool tryFillTable(int sq, uint64_t magic, Slider slider) {
         constexpr uint64_t EMPTY_ENTRY = ~(0ull);
-        moveTable.fill(EMPTY_ENTRY);
+        std::vector<uint64_t> moveTable(1ull << slider.indexBits[sq], EMPTY_ENTRY);
+
+        uint64_t mask = getBlockerMask(sq, slider.dirs, slider.dirCount);
 
         for (uint64_t blockers : bitSubsets(mask)) {
-            uint64_t moves = validRookMoves(sq, blockers);
-            uint64_t *tableEntry = &moveTable[magicIndex(blockers, magic)];
+            uint64_t moves = validSliderMoves(sq, blockers, slider.dirs, slider.dirCount);
+            uint64_t *tableEntry = &moveTable[magicIndex(sq, blockers, magic, slider)];
             if (*tableEntry == EMPTY_ENTRY) {
                 *tableEntry = moves;
             } else if (*tableEntry != moves) {
@@ -201,48 +150,37 @@ namespace MagicBB {
         return true;
     }
 
-    bool tryMakeBishopTable(int sq, uint64_t magic, std::array<uint64_t, 1ull << INDEX_BITS>& moveTable) {
-        uint64_t mask = getBishopBlockerMask(sq);
-        constexpr uint64_t EMPTY_ENTRY = ~(0ull);
-        moveTable.fill(EMPTY_ENTRY);
-
-        for (uint64_t blockers : bitSubsets(mask)) {
-            uint64_t moves = validBishopMoves(sq, blockers);
-            uint64_t *tableEntry = &moveTable[magicIndex(blockers, magic)];
-            if (*tableEntry == EMPTY_ENTRY) {
-                *tableEntry = moves;
-            } else if (*tableEntry != moves) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    void findRookMagics() {
+    std::array<uint64_t, 64> findRookMagics() {
+        std::array<uint64_t, 64> rookMagics;
         for (int sq = 0; sq < 64; sq++) {
             bool foundMagic = false;
             uint64_t magic = 0;
             while (!foundMagic) {
                 magic = gen64Random() & gen64Random() & gen64Random();
 
-                foundMagic = tryMakeRookTable(sq, magic, ROOK_MOVETABLE);
+                foundMagic = tryFillTable(sq, magic, ROOK);
             }
             
-            ROOK_MAGICS[sq] = magic;
+            rookMagics[sq] = magic;
         }
+
+        return rookMagics;
     }
 
-    void findBishopMagics() {
+    std::array<uint64_t, 64> findBishopMagics() {
+        std::array<uint64_t, 64> bishopMagics;
         for (int sq = 0; sq < 64; sq++) {
             bool foundMagic = false;
             uint64_t magic = 0;
             while (!foundMagic) {
                 magic = gen64Random() & gen64Random() & gen64Random();
 
-                foundMagic = tryMakeBishopTable(sq, magic, BISHOP_MOVETABLE);
+                foundMagic = tryFillTable(sq, magic, BISHOP);
             }
             
-            BISHOP_MAGICS[sq] = magic;
+            bishopMagics[sq] = magic;
         }
+
+        return bishopMagics;
     }
 }

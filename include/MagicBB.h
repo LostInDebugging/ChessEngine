@@ -2,35 +2,24 @@
 #define MAGICBB_H
 
 namespace MagicBB {
-    constexpr int INDEX_BITS = 12;
-    
-    extern std::array<uint64_t, 64> BISHOP_MAGICS;
-    extern std::array<uint64_t, 1ull << INDEX_BITS> BISHOP_MOVETABLE;
+    struct Direction;
+    struct Slider;
 
-    extern std::array<uint64_t, 64> ROOK_MAGICS;
-    extern std::array<uint64_t, 1ull << INDEX_BITS> ROOK_MOVETABLE;
-
-    uint64_t getRookBlockerMask(int sq);
-
-    uint64_t getBishopBlockerMask(int sq);
+    uint64_t getBlockerMask(int sq, const Direction* dirs, int nDirs);
 
     std::vector<uint64_t> bitSubsets(uint64_t bitset);
 
-    uint64_t validRookMoves(int sq, uint64_t blockers);
+    uint64_t validSliderMoves(int sq, uint64_t blockers, const Direction* dirs, int nDirs);
 
-    uint64_t validBishopMoves(int sq, uint64_t blockers);
-
-    int magicIndex(uint64_t blockers, uint64_t magic);
+    int magicIndex(int sq, uint64_t blockers, uint64_t magic, Slider slider);
 
     uint64_t gen64Random();
 
-    bool tryMakeRookTable(int sq, uint64_t magic, std::array<uint64_t, 1ull << INDEX_BITS>& moveTable);
+    bool tryFillTable(int sq, uint64_t magic, Slider slider);
 
-    bool tryMakeBishopTable(int sq, uint64_t magic, std::array<uint64_t, 1ull << INDEX_BITS>& moveTable);
+    std::array<uint64_t, 64> findRookMagics();
 
-    void findRookMagics();
-
-    void findBishopMagics();
+    std::array<uint64_t, 64> findBishopMagics();
 }
 
 #endif

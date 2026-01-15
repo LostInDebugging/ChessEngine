@@ -30,8 +30,14 @@ int main() {
 
     MagicBB::findRookMagics();
     MagicBB::findBishopMagics();
+    
+    std::cout << "Bishop Magics:\n";
+    for (uint64_t magic : MagicBB::findBishopMagics()) {
+        std::cout << magic << '\n';
+    }
 
-    for (uint64_t magic : MagicBB::BISHOP_MAGICS) {
+    std::cout << "Rook Magics:\n";
+    for (uint64_t magic : MagicBB::findRookMagics()) {
         std::cout << magic << '\n';
     }
 }
