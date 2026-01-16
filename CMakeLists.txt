@@ -11,6 +11,8 @@ add_executable(app
     src/MoveGen.cpp
     src/Helpers.cpp
     src/MagicBB.cpp
+    tools/GenAttackTables/GenNonSliderAttacks.cpp
 )
 
 target_include_directories(app PRIVATE include)
+target_include_directories(app PRIVATE tools/GenAttackTables)

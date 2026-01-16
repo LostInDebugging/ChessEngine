@@ -1,5 +1,6 @@
 #include <bit>
 #include "MoveGen.h"
+#include "attackTables.h"
 #include "Helpers.h"
 
 std::vector<Move> MoveGen::generateKnightMoves(GameState g) {
@@ -12,7 +13,7 @@ std::vector<Move> MoveGen::generateKnightMoves(GameState g) {
         int from = std::countr_zero(knightsBB);
         knightsBB &= ~(1ull << from);
 
-        uint64_t knightMovesBB = (attackTable::knightAttacks[from] & ~g.pieceBB({PieceType::INVALID, activeColour}));
+        uint64_t knightMovesBB = (attackTables::knightAttacks[from] & ~g.pieceBB({PieceType::INVALID, activeColour}));
 
         while (knightMovesBB != 0) {
             int to = std::countr_zero(knightMovesBB);
