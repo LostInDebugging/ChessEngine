@@ -2,8 +2,7 @@
 #include "MoveGen.h"
 #include "Helpers.h"
 #include "MagicBB.h"
-#include "attackTables.h"
-#include "GenNonSliderAttacks.h"
+#include "Attacks.h"
 
 int main() {
     GameState *gameState = new GameState("b1B5/3K2k1/1Q1p4/1P3p2/7P/3PP3/q4np1/1R3R2 b Kqk a3 205 123");
@@ -28,16 +27,6 @@ int main() {
     }
     for (Move move : moves3) {
         move.printMove();
-    }
-
-    int i = 1;
-    for (auto move : AtkTableGen::generateKingAttackTable()) {
-        if (i % 4 == 0) {
-            std::cout << move << "ULL,\n";
-        } else {
-            std::cout << move << "ULL, ";
-        }
-        i++;
     }
     /*
     MagicBB::findRookMagics();

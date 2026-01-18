@@ -1,4 +1,4 @@
-#include "GenNonSliderAttacks.h"
+#include "GenAttacks.h"
 #include "BoardConstants.h"
 
 namespace AtkTableGen {

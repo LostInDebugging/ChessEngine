@@ -25,6 +25,20 @@ struct Piece {
     PlayerColour colour;
 };
 
+struct Direction { 
+    int dr; 
+    int dc; 
+};
+
+constexpr Direction ROOK_DIRS[] = {
+    { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 }
+};
+
+constexpr Direction BISHOP_DIRS[] = {
+    { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 }
+};
+
+
 
 namespace Rays {
     constexpr uint64_t make_rank_mask(int rank_index) {
