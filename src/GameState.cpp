@@ -136,6 +136,14 @@ uint64_t GameState::pieceBB(Piece piece) {
     return pbb & cbb;
 }
 
+int GameState::getEnPassant() {
+    return m_enPassant;
+}
+
+int GameState::getCastlingRights() {
+    return m_castlingRights;
+}
+
 // PRIVATE METHOD DEFINITIONS
 // =============================================================================
 // =============================================================================

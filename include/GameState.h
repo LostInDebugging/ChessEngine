@@ -6,7 +6,7 @@
 #include <limits>
 #include "BoardConstants.h"
 
-enum class castlingRights {
+enum CastlingRights {
     WHITE_KINGSIDE = 1,
     WHITE_QUEENSIDE = 2,
     BLACK_KINGSIDE = 4,
@@ -50,6 +50,9 @@ public:
 
     // Return the en passant square
     int getEnPassant();
+
+    // return the castling rights
+    int getCastlingRights();
 /*============================================================================*/
 // PRIVATE HELPER METHODS
 private: 

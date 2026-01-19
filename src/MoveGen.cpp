@@ -3,15 +3,61 @@
 #include "MoveGen.h"
 #include "Helpers.h"
 
+//TODO CHECK SQAURES BETWEEN KING AND ROOK
+std::vector<Move> MoveGen::generateCastlingMoves(GameState g) {
+    std::vector<Move> moves;
+
+    int castlingRights = g.getCastlingRights();
+    if (castlingRights & WHITE_KINGSIDE) {
+        moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, WHITE_KINGSIDE));
+    }
+    if (castlingRights & WHITE_QUEENSIDE) {
+        moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, WHITE_QUEENSIDE));
+    }
+    if (castlingRights & BLACK_KINGSIDE) {
+        moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, BLACK_KINGSIDE));
+    }
+    if (castlingRights & BLACK_QUEENSIDE) {
+        moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, BLACK_QUEENSIDE));
+    }
+
+    return moves;
+}
+
+//TODO AVOID WRAPAROUND
 std::vector<Move> MoveGen::generateEnPassant(GameState g) {
-    if (g.getEnPassant() == NO_EN_PASSANT) {
+    std::vector<Move> moves;
+
+    int sq = g.getEnPassant();
+    int sqBB = 1ull << sq;
+
+    if (sq == NO_EN_PASSANT) {
         return std::vector<Move>();
     }
 
     PlayerColour activeColour = g.getActiveColour();
+    uint64_t myPawns = g.pieceBB({PieceType::PAWN, activeColour});
+
+    if (activeColour == PlayerColour::WHITE) {
+        uint64_t fromPawns = myPawns & ((sqBB >> 7) | (sqBB >> 9));
+        while (fromPawns != 0) {
+            int from = std::countr_zero(fromPawns);
+            fromPawns &= ~(1ull << from);
+
+            moves.push_back(Move(from, sq, PieceType::PAWN, PieceType::INVALID, sq, -1));
+        }
+    } else {
+        uint64_t fromPawns = myPawns & ((sqBB << 7) | (sqBB << 9));
+        while (fromPawns != 0) {
+            int from = std::countr_zero(fromPawns);
+            fromPawns &= ~(1ull << from);
+
+            moves.push_back(Move(from, sq, PieceType::PAWN, PieceType::INVALID, sq, -1));
+        }
+    }
+
+    return moves;
 }
-
-
 
 std::vector<Move> MoveGen::generateBishopMoves(GameState g) {
     std::vector<Move> moves;
@@ -143,6 +189,7 @@ std::vector<Move> MoveGen::generateKnightMoves(GameState g) {
     return moves;
 }
 
+//TODO AVOID WRAPAROUND
 std::vector<Move> MoveGen::generatePawnCaptures(GameState g) {
     PlayerColour activeColour = g.getActiveColour();
 
@@ -188,6 +235,7 @@ std::vector<Move> MoveGen::generatePawnPushes(GameState g) {
     return moves;
 }
 
+//TODO AVOID WRAPAROUND
 std::vector<Move> MoveGen::generatePawnPromotions(GameState g) {
     PlayerColour activeColour = g.getActiveColour();
 
