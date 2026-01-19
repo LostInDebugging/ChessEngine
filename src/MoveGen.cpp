@@ -3,6 +3,123 @@
 #include "MoveGen.h"
 #include "Helpers.h"
 
+std::vector<Move> MoveGen::generateEnPassant(GameState g) {
+    if (g.getEnPassant() == NO_EN_PASSANT) {
+        return std::vector<Move>();
+    }
+
+    PlayerColour activeColour = g.getActiveColour();
+}
+
+
+
+std::vector<Move> MoveGen::generateBishopMoves(GameState g) {
+    std::vector<Move> moves;
+
+    PlayerColour activeColour = g.getActiveColour();
+    uint64_t ourBB = g.pieceBB({PieceType::INVALID, activeColour});
+    uint64_t bishopsBB = g.pieceBB({PieceType::BISHOP, activeColour});
+
+    while (bishopsBB != 0) {
+        int from = std::countr_zero(bishopsBB);
+        bishopsBB &= ~(1ull << from);
+
+        uint64_t blockers = Magic::BISHOP_BLOCKER_MASKS[from] & ourBB;
+        uint64_t magic = Magic::BISHOP_MAGICS[from];
+        uint64_t bishopMovesBB = Attacks::bishopAttacks[Magic::magicIndex(from, blockers, magic, Magic::BISHOP)];
+        bishopMovesBB &= ~ourBB;
+
+        while (bishopMovesBB != 0) {
+            int to = std::countr_zero(bishopMovesBB);
+            bishopMovesBB &= ~(1ull << to);
+
+            moves.push_back(Move(from, to, PieceType::BISHOP, PieceType::INVALID, -1, -1));
+        }
+    }
+    return moves;
+}
+
+std::vector<Move> MoveGen::generateRookMoves(GameState g) {
+    std::vector<Move> moves;
+
+    PlayerColour activeColour = g.getActiveColour();
+    uint64_t ourBB = g.pieceBB({PieceType::INVALID, activeColour});
+    uint64_t rooksBB = g.pieceBB({PieceType::ROOK, activeColour});
+
+    while (rooksBB != 0) {
+        int from = std::countr_zero(rooksBB);
+        rooksBB &= ~(1ull << from);
+
+        uint64_t blockers = Magic::ROOK_BLOCKER_MASKS[from] & ourBB;
+        uint64_t magic = Magic::ROOK_MAGICS[from];
+        uint64_t rookMovesBB = Attacks::rookAttacks[Magic::magicIndex(from, blockers, magic, Magic::ROOK)];
+        rookMovesBB &= ~ourBB;
+        while (rookMovesBB != 0) {
+            int to = std::countr_zero(rookMovesBB);
+            rookMovesBB &= ~(1ull << to);
+
+            moves.push_back(Move(from, to, PieceType::ROOK, PieceType::INVALID, -1, -1));
+        }
+    }
+    return moves;
+}
+
+std::vector<Move> MoveGen::generateQueenMoves(GameState g) {
+    std::vector<Move> moves;
+
+    PlayerColour activeColour = g.getActiveColour();
+    uint64_t ourBB = g.pieceBB({PieceType::INVALID, activeColour});
+    uint64_t queensBB = g.pieceBB({PieceType::QUEEN, activeColour});
+
+    while (queensBB != 0) {
+        int from = std::countr_zero(queensBB);
+        queensBB &= ~(1ull << from);
+
+        // Rook-like moves
+        uint64_t rookBlockers = Magic::ROOK_BLOCKER_MASKS[from] & ourBB;
+        uint64_t rookMagic = Magic::ROOK_MAGICS[from];
+        uint64_t rookMovesBB = Attacks::rookAttacks[Magic::magicIndex(from, rookBlockers, rookMagic, Magic::ROOK)];
+
+        // Bishop-like moves
+        uint64_t bishopBlockers = Magic::BISHOP_BLOCKER_MASKS[from] & ourBB;
+        uint64_t bishopMagic = Magic::BISHOP_MAGICS[from];
+        uint64_t bishopMovesBB = Attacks::bishopAttacks[Magic::magicIndex(from, bishopBlockers, bishopMagic, Magic::BISHOP)];
+
+        uint64_t queenMovesBB = (rookMovesBB | bishopMovesBB) & ~ourBB;
+
+        while (queenMovesBB != 0) {
+            int to = std::countr_zero(queenMovesBB);
+            queenMovesBB &= ~(1ull << to);
+
+            moves.push_back(Move(from, to, PieceType::QUEEN, PieceType::INVALID, -1, -1));
+        }
+    }
+    return moves;
+}
+
+std::vector<Move> MoveGen::generateKingMoves(GameState g) {
+    std::vector<Move> moves;
+
+    PlayerColour activeColour = g.getActiveColour();
+    uint64_t kingsBB = g.pieceBB({PieceType::KING, activeColour});
+
+    while (kingsBB != 0) {
+        int from = std::countr_zero(kingsBB);
+        kingsBB &= ~(1ull << from);
+
+        uint64_t kingMovesBB = (Attacks::kingAttacks[from] & ~g.pieceBB({PieceType::INVALID, activeColour}));
+
+        while (kingMovesBB != 0) {
+            int to = std::countr_zero(kingMovesBB);
+            kingMovesBB &= ~(1ull << to);
+
+            moves.push_back(Move(from, to, PieceType::KING, PieceType::INVALID, -1, -1));
+        }
+    }
+
+    return moves;
+}
+
 std::vector<Move> MoveGen::generateKnightMoves(GameState g) {
     std::vector<Move> moves;
 

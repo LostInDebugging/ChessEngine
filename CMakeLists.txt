@@ -13,12 +13,15 @@ add_executable(app
     src/Move.cpp 
     src/MoveGen.cpp
     src/Helpers.cpp
+
     data/BishopAttacks.cpp
     data/KingAttacks.cpp
     data/KnightAttacks.cpp
     data/RookAttacks.cpp
     data/BishopMagics.cpp
     data/RookMagics.cpp
+    data/Blockers.cpp
+    
     common/Magic.cpp
 )
 

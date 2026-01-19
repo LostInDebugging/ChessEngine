@@ -79,8 +79,8 @@ GameState::GameState() {
     m_wpbb = 0b1111111111111111ull;
 
     m_activeColour = PlayerColour::WHITE;
-    m_castlingRights = -1; // TODO: castling rights
-    m_enPassant = -1; // TODO: En passant
+    m_castlingRights = WHITE_KINGSIDE | WHITE_QUEENSIDE | BLACK_KINGSIDE | BLACK_QUEENSIDE; // TODO: castling rights
+    m_enPassant = NO_EN_PASSANT; // TODO: En passant
     m_halfMoveClock = 0;
     m_fullMoveCount = 0;
 }
