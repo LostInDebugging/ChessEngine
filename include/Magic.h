@@ -49,6 +49,8 @@ namespace Magic {
     extern const uint64_t BISHOP_BLOCKER_MASKS[64];
 
     int magicIndex(int sq, uint64_t blockers, uint64_t magic, Slider slider);
+    uint64_t getBishopMoves(int sq, uint64_t all);
+    uint64_t getRookMoves(int sq, uint64_t all);
 }
 
 #endif

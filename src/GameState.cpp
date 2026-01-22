@@ -1,5 +1,7 @@
 #include "GameState.h"
 #include "Helpers.h"
+#include "Attacks.h"
+#include "Magic.h"
 
 GameState::GameState(std::string FEN) {
     int posEndIndex = FEN.find(' ');
@@ -144,11 +146,6 @@ int GameState::getCastlingRights() {
     return m_castlingRights;
 }
 
-// PRIVATE METHOD DEFINITIONS
-// =============================================================================
-// =============================================================================
-
-
 Piece GameState::getPieceAtSquare(int square) {
     unsigned long long bitMask = 1ull << square;
     Piece piece;
@@ -178,4 +175,51 @@ Piece GameState::getPieceAtSquare(int square) {
         piece.colour = PlayerColour::BLACK;
     }
     return piece;
+}
+
+// PRIVATE METHOD DEFINITIONS
+// =============================================================================
+// =============================================================================
+
+
+bool GameState::isSquareAttacked(int sq, PlayerColour col) {
+    uint64_t sqBB = 1ull << sq;
+    uint64_t all = m_wpbb | m_bpbb;
+
+    uint64_t pawns = pieceBB({PieceType::PAWN, col});
+    uint64_t pawnAttacks = col == PlayerColour::WHITE ? ((pawns << 7) | (pawns << 9)) : ((pawns >> 7) | (pawns >> 9));
+
+    if (sqBB & pawnAttacks) {
+        return true;
+    } //TODO AVOID PAWN WRAPAROUND
+
+    // Check knight attacks
+    uint64_t knights = pieceBB({PieceType::KNIGHT, col});
+    if (Attacks::knightAttacks[sq] & knights) {
+        return true;
+    }
+
+    // Check bishop, queen attacks
+    uint64_t bishops = pieceBB({PieceType::BISHOP, col});
+    uint64_t queens = pieceBB({PieceType::QUEEN, col});
+    
+    uint64_t crossAttacks = Magic::getBishopMoves(sq, all);
+    if (crossAttacks & (bishops | queens)) {
+        return true;
+    }
+
+    // Check rook, queen attacks
+    uint64_t rooks = pieceBB({PieceType::ROOK, col});
+    uint64_t plusAttacks = Magic::getRookMoves(sq, all);
+    if (plusAttacks & (rooks | queens)) {
+        return true;
+    }
+
+    // Check king attacks
+    uint64_t king = pieceBB({PieceType::KING, col});
+    if (Attacks::kingAttacks[sq] & king) {
+        return true;
+    }
+
+    return false;
 }

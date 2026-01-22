@@ -13,6 +13,11 @@ enum CastlingRights {
     BLACK_QUEENSIDE = 8
 };
 
+constexpr uint64_t WHITE_KINGSIDE_BLOCKERS = 0x00000060;
+constexpr uint64_t WHITE_QUEENSIDE_BLOCKERS = 0x0000000E;
+constexpr uint64_t BLACK_KINGSIDE_BLOCKERS = 0x06000000;
+constexpr uint64_t BLACK_QUEENSIDE_BLOCKERS = 0xE0000000;
+
 constexpr int NO_EN_PASSANT = -1;
 
 
@@ -56,8 +61,7 @@ public:
 /*============================================================================*/
 // PRIVATE HELPER METHODS
 private: 
-    char getPieceChar(Piece);
-
+    bool isSquareAttacked(int sq, PlayerColour col);
 };
 
 #endif

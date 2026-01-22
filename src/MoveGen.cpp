@@ -7,17 +7,20 @@
 std::vector<Move> MoveGen::generateCastlingMoves(GameState g) {
     std::vector<Move> moves;
 
+    PlayerColour activeColour = g.getActiveColour();
+    uint64_t myPieces = g.pieceBB({PieceType::INVALID, activeColour});
+
     int castlingRights = g.getCastlingRights();
-    if (castlingRights & WHITE_KINGSIDE) {
+    if ((castlingRights & WHITE_KINGSIDE) && !(myPieces & WHITE_KINGSIDE_BLOCKERS)) {
         moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, WHITE_KINGSIDE));
     }
-    if (castlingRights & WHITE_QUEENSIDE) {
+    if ((castlingRights & WHITE_QUEENSIDE) && !(myPieces & WHITE_QUEENSIDE_BLOCKERS)) {
         moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, WHITE_QUEENSIDE));
     }
-    if (castlingRights & BLACK_KINGSIDE) {
+    if ((castlingRights & BLACK_KINGSIDE)  && !(myPieces & BLACK_KINGSIDE_BLOCKERS)) {
         moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, BLACK_KINGSIDE));
     }
-    if (castlingRights & BLACK_QUEENSIDE) {
+    if ((castlingRights & BLACK_QUEENSIDE) && !(myPieces & BLACK_QUEENSIDE_BLOCKERS)) {
         moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, BLACK_QUEENSIDE));
     }
 
