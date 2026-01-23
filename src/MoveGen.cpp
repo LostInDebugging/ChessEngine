@@ -3,7 +3,8 @@
 #include "MoveGen.h"
 #include "Helpers.h"
 
-//TODO CHECK SQAURES BETWEEN KING AND ROOK
+// castling is possible if none of the squares between king (inclusive) and rook (exclusive) are attacked
+// and there exist no pieces blocking it.
 std::vector<Move> MoveGen::generateCastlingMoves(GameState g) {
     std::vector<Move> moves;
 
@@ -11,23 +12,52 @@ std::vector<Move> MoveGen::generateCastlingMoves(GameState g) {
     uint64_t myPieces = g.pieceBB({PieceType::INVALID, activeColour});
 
     int castlingRights = g.getCastlingRights();
+
+    constexpr int WHITE_KINGSIDE_SQ[] = {4, 5, 6};
+    constexpr int WHITE_QUEENSIDE_SQ[] = {1, 2, 3, 4};
+    constexpr int BLACK_KINGSIDE_SQ[] = {60, 61, 62};
+    constexpr int BLACK_QUEENSIDE_SQ[] = {57, 58, 59, 60};
+
     if ((castlingRights & WHITE_KINGSIDE) && !(myPieces & WHITE_KINGSIDE_BLOCKERS)) {
-        moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, WHITE_KINGSIDE));
+        bool possible = true;
+        for (int sq : WHITE_KINGSIDE_SQ) {
+            if (g.isSquareAttacked(sq, PlayerColour::BLACK)) {
+                possible = false;
+            }
+        }
+        if (possible) moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, WHITE_KINGSIDE));
     }
     if ((castlingRights & WHITE_QUEENSIDE) && !(myPieces & WHITE_QUEENSIDE_BLOCKERS)) {
-        moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, WHITE_QUEENSIDE));
+        bool possible = true;
+        for (int sq : WHITE_KINGSIDE_SQ) {
+            if (g.isSquareAttacked(sq, PlayerColour::BLACK)) {
+                possible = false;
+            }
+        }
+        if (possible) moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, WHITE_QUEENSIDE));
     }
     if ((castlingRights & BLACK_KINGSIDE)  && !(myPieces & BLACK_KINGSIDE_BLOCKERS)) {
-        moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, BLACK_KINGSIDE));
+        bool possible = true;
+        for (int sq : WHITE_KINGSIDE_SQ) {
+            if (g.isSquareAttacked(sq, PlayerColour::WHITE)) {
+                possible = false;
+            }
+        }
+        if (possible) moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, BLACK_KINGSIDE));
     }
     if ((castlingRights & BLACK_QUEENSIDE) && !(myPieces & BLACK_QUEENSIDE_BLOCKERS)) {
-        moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, BLACK_QUEENSIDE));
+        bool possible = true;
+        for (int sq : WHITE_KINGSIDE_SQ) {
+            if (g.isSquareAttacked(sq, PlayerColour::WHITE)) {
+                possible = false;
+            }
+        }
+        if (possible) moves.push_back(Move(-1, -1, PieceType::INVALID, PieceType::INVALID, -1, BLACK_QUEENSIDE));
     }
 
     return moves;
 }
 
-//TODO AVOID WRAPAROUND
 std::vector<Move> MoveGen::generateEnPassant(GameState g) {
     std::vector<Move> moves;
 
@@ -42,7 +72,7 @@ std::vector<Move> MoveGen::generateEnPassant(GameState g) {
     uint64_t myPawns = g.pieceBB({PieceType::PAWN, activeColour});
 
     if (activeColour == PlayerColour::WHITE) {
-        uint64_t fromPawns = myPawns & ((sqBB >> 7) | (sqBB >> 9));
+        uint64_t fromPawns = myPawns & (((sqBB >> 7) & ~Rays::FILE_A) | ((sqBB >> 9) & ~Rays::FILE_H));
         while (fromPawns != 0) {
             int from = std::countr_zero(fromPawns);
             fromPawns &= ~(1ull << from);
@@ -50,7 +80,7 @@ std::vector<Move> MoveGen::generateEnPassant(GameState g) {
             moves.push_back(Move(from, sq, PieceType::PAWN, PieceType::INVALID, sq, -1));
         }
     } else {
-        uint64_t fromPawns = myPawns & ((sqBB << 7) | (sqBB << 9));
+        uint64_t fromPawns = myPawns & (((sqBB << 7) & ~Rays::FILE_A) | ((sqBB << 9) & ~Rays::FILE_H));
         while (fromPawns != 0) {
             int from = std::countr_zero(fromPawns);
             fromPawns &= ~(1ull << from);
@@ -192,29 +222,41 @@ std::vector<Move> MoveGen::generateKnightMoves(GameState g) {
     return moves;
 }
 
-//TODO AVOID WRAPAROUND
 std::vector<Move> MoveGen::generatePawnCaptures(GameState g) {
     PlayerColour activeColour = g.getActiveColour();
 
     std::vector<Move> moves;
-    if (activeColour == PlayerColour::WHITE) {
-        uint64_t rightCaptures = (g.pieceBB({PieceType::PAWN, activeColour}) << 9) & g.pieceBB({PieceType::INVALID, PlayerColour::BLACK});
-        uint64_t leftCaptures = (g.pieceBB({PieceType::PAWN, activeColour}) << 7) & g.pieceBB({PieceType::INVALID, PlayerColour::BLACK});
+    
+    uint64_t;
+    uint64_t;
+    uint64_t lc;
+    uint64_t rc;;
+    uint64_t promoRank;
+    int rcOffset;
+    int lcOffset;
 
-        addPromotionMoves(moves, rightCaptures & Rays::RANK_8, -9);
-        addPromotionMoves(moves, leftCaptures & Rays::RANK_8, -7);
-        extractMoves(moves, rightCaptures & ~Rays::RANK_8, -9, PieceType::PAWN, MoveFlag::CAPTURE);
-        extractMoves(moves, rightCaptures & ~Rays::RANK_8, -7, PieceType::PAWN, MoveFlag::CAPTURE);
-    } else if (activeColour == PlayerColour::BLACK) {
-        uint64_t rightCaptures = (g.pieceBB({PieceType::PAWN, activeColour}) >> 7) & g.pieceBB({PieceType::INVALID, PlayerColour::WHITE});
-        uint64_t leftCaptures = (g.pieceBB({PieceType::PAWN, activeColour}) >> 9) & g.pieceBB({PieceType::INVALID, PlayerColour::WHITE});
-        uint64_t allCaptures = rightCaptures | leftCaptures;
-
-        addPromotionMoves(moves, rightCaptures & Rays::RANK_1, 7);
-        addPromotionMoves(moves, leftCaptures & Rays::RANK_1, 9);
-        extractMoves(moves, rightCaptures & ~Rays::RANK_1, 7, PieceType::PAWN, MoveFlag::CAPTURE);
-        extractMoves(moves, rightCaptures & ~Rays::RANK_1, 9, PieceType::PAWN, MoveFlag::CAPTURE);
+    if (activeColour == PlayerColour::BLACK) {
+        uint64_t myPawns = g.pieceBB({PieceType::PAWN, activeColour});
+        uint64_t enemyPieces = g.pieceBB({PieceType::INVALID, PlayerColour::BLACK});
+        uint64_t lc = ((~Rays::FILE_A & myPawns) >> 9) & enemyPieces;
+        uint64_t rc = ((~Rays::FILE_H & myPawns) >> 7) & enemyPieces;
+        uint64_t promoRank = Rays::RANK_1;
+        rcOffset = 7;
+        lcOffset = 9;
+    } else {
+        uint64_t myPawns = g.pieceBB({PieceType::PAWN, activeColour});
+        uint64_t enemyPieces = g.pieceBB({PieceType::INVALID, PlayerColour::BLACK});
+        uint64_t lc = ((~Rays::FILE_A & myPawns) << 7) & enemyPieces;
+        uint64_t rc = ((~Rays::FILE_H & myPawns) << 9) & enemyPieces;
+        uint64_t promoRank = Rays::RANK_8;
+        rcOffset = -9;
+        lcOffset = -7;
     }
+
+    addPromotionMoves(moves, rc & promoRank, rcOffset);
+    addPromotionMoves(moves, lc & promoRank, lcOffset);
+    extractMoves(moves, rc & ~promoRank, rcOffset, PieceType::PAWN, MoveFlag::CAPTURE);
+    extractMoves(moves, lc & ~Rays::RANK_8, lcOffset, PieceType::PAWN, MoveFlag::CAPTURE);
 
     return moves;
 }
@@ -238,7 +280,6 @@ std::vector<Move> MoveGen::generatePawnPushes(GameState g) {
     return moves;
 }
 
-//TODO AVOID WRAPAROUND
 std::vector<Move> MoveGen::generatePawnPromotions(GameState g) {
     PlayerColour activeColour = g.getActiveColour();
 

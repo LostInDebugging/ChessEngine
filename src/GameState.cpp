@@ -81,8 +81,8 @@ GameState::GameState() {
     m_wpbb = 0b1111111111111111ull;
 
     m_activeColour = PlayerColour::WHITE;
-    m_castlingRights = WHITE_KINGSIDE | WHITE_QUEENSIDE | BLACK_KINGSIDE | BLACK_QUEENSIDE; // TODO: castling rights
-    m_enPassant = NO_EN_PASSANT; // TODO: En passant
+    m_castlingRights = WHITE_KINGSIDE | WHITE_QUEENSIDE | BLACK_KINGSIDE | BLACK_QUEENSIDE;
+    m_enPassant = NO_EN_PASSANT;
     m_halfMoveClock = 0;
     m_fullMoveCount = 0;
 }
@@ -187,11 +187,12 @@ bool GameState::isSquareAttacked(int sq, PlayerColour col) {
     uint64_t all = m_wpbb | m_bpbb;
 
     uint64_t pawns = pieceBB({PieceType::PAWN, col});
-    uint64_t pawnAttacks = col == PlayerColour::WHITE ? ((pawns << 7) | (pawns << 9)) : ((pawns >> 7) | (pawns >> 9));
+    uint64_t pawnAttacks = col == PlayerColour::WHITE ? 
+        (((~Rays::FILE_A & pawns) << 7) | ((~Rays::FILE_H & pawns) << 9)) : ((~Rays::FILE_H & pawns) >> 7 | (~Rays::FILE_A & pawns) >> 9);
 
     if (sqBB & pawnAttacks) {
         return true;
-    } //TODO AVOID PAWN WRAPAROUND
+    }
 
     // Check knight attacks
     uint64_t knights = pieceBB({PieceType::KNIGHT, col});

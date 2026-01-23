@@ -58,10 +58,14 @@ public:
 
     // return the castling rights
     int getCastlingRights();
+
+    // given a square and a colour, return true if the square is attacked by a piece of
+    // that colour
+    bool isSquareAttacked(int sq, PlayerColour col);
 /*============================================================================*/
 // PRIVATE HELPER METHODS
 private: 
-    bool isSquareAttacked(int sq, PlayerColour col);
+
 };
 
 #endif
