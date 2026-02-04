@@ -25,7 +25,7 @@ int main () {
     rookMagicsOut << "#include <cstdint>\n\n";
 
     rookMagicsOut << "namespace Magic {\n";
-    rookMagicsOut << "    std::array<uint64_t, 64> ROOK_MAGICS = {\n        ";
+    rookMagicsOut << "    const std::array<uint64_t, 64> ROOK_MAGICS = {\n        ";
     for (int i = 0; i < 64; i++) {
         rookMagicsOut << "0x" << std::hex << rookMagics[i];
         if (i != 63) {
@@ -42,7 +42,7 @@ int main () {
     bishopMagicsOut << "#include <cstdint>\n\n";
 
     bishopMagicsOut << "namespace Magic {\n";
-    bishopMagicsOut << "    std::array<uint64_t, 64> BISHOP_MAGICS = {\n        ";
+    bishopMagicsOut << "    const std::array<uint64_t, 64> BISHOP_MAGICS = {\n        ";
     for (int i = 0; i < 64; i++) {
         bishopMagicsOut << "0x" << std::hex << bishopMagics[i];
         if (i != 63) {
@@ -60,7 +60,7 @@ int main () {
     rookAttacksOut << "#include \"Magic.h\"\n\n";
 
     rookAttacksOut << "namespace Attacks {\n";
-    rookAttacksOut << "    std::array<uint64_t, Magic::MAX_ROOK_TABLE_SIZE> rookAttacks = {\n        ";
+    rookAttacksOut << "    const std::array<uint64_t, Magic::MAX_ROOK_TABLE_SIZE> rookAttacks = {\n        ";
     for (int i = 0; i < Magic::MAX_ROOK_TABLE_SIZE - 1; i++) {
         rookAttacksOut << "0x" << std::hex << rookAttackTable[i];
         if (i != Magic::MAX_ROOK_TABLE_SIZE - 1) {
@@ -77,7 +77,7 @@ int main () {
     bishopAttacksOut << "#include \"Magic.h\"\n\n";
 
     bishopAttacksOut << "namespace Attacks {\n";
-    bishopAttacksOut << "    std::array<uint64_t, Magic::MAX_BISHOP_TABLE_SIZE> bishopAttacks = {\n        ";
+    bishopAttacksOut << "    const std::array<uint64_t, Magic::MAX_BISHOP_TABLE_SIZE> bishopAttacks = {\n        ";
     for (int i = 0; i < Magic::MAX_BISHOP_TABLE_SIZE - 1; i++) {
         bishopAttacksOut << "0x" << std::hex << bishopAttackTable[i];
         if (i != Magic::MAX_BISHOP_TABLE_SIZE - 1) {

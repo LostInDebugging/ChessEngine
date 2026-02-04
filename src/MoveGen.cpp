@@ -2,12 +2,11 @@
 #include "Attacks.h"
 #include "MoveGen.h"
 #include "Helpers.h"
+#include "Magic.h"
 
 // castling is possible if none of the squares between king (inclusive) and rook (exclusive) are attacked
 // and there exist no pieces blocking it.
-std::vector<Move> MoveGen::generateCastlingMoves(GameState g) {
-    std::vector<Move> moves;
-
+std::vector<Move> MoveGen::generateCastlingMoves(std::vector<Move> moves, GameState g) {
     PlayerColour activeColour = g.getActiveColour();
     uint64_t myPieces = g.pieceBB({PieceType::INVALID, activeColour});
 
@@ -58,9 +57,7 @@ std::vector<Move> MoveGen::generateCastlingMoves(GameState g) {
     return moves;
 }
 
-std::vector<Move> MoveGen::generateEnPassant(GameState g) {
-    std::vector<Move> moves;
-
+std::vector<Move> MoveGen::generateEnPassant(std::vector<Move> moves, GameState g) {
     int sq = g.getEnPassant();
     int sqBB = 1ull << sq;
 
@@ -92,9 +89,7 @@ std::vector<Move> MoveGen::generateEnPassant(GameState g) {
     return moves;
 }
 
-std::vector<Move> MoveGen::generateBishopMoves(GameState g) {
-    std::vector<Move> moves;
-
+std::vector<Move> MoveGen::generateBishopMoves(std::vector<Move> moves, GameState g) {
     PlayerColour activeColour = g.getActiveColour();
     uint64_t ourBB = g.pieceBB({PieceType::INVALID, activeColour});
     uint64_t bishopsBB = g.pieceBB({PieceType::BISHOP, activeColour});
@@ -118,9 +113,7 @@ std::vector<Move> MoveGen::generateBishopMoves(GameState g) {
     return moves;
 }
 
-std::vector<Move> MoveGen::generateRookMoves(GameState g) {
-    std::vector<Move> moves;
-
+std::vector<Move> MoveGen::generateRookMoves(std::vector<Move> moves, GameState g) {
     PlayerColour activeColour = g.getActiveColour();
     uint64_t ourBB = g.pieceBB({PieceType::INVALID, activeColour});
     uint64_t rooksBB = g.pieceBB({PieceType::ROOK, activeColour});
@@ -143,9 +136,7 @@ std::vector<Move> MoveGen::generateRookMoves(GameState g) {
     return moves;
 }
 
-std::vector<Move> MoveGen::generateQueenMoves(GameState g) {
-    std::vector<Move> moves;
-
+std::vector<Move> MoveGen::generateQueenMoves(std::vector<Move> moves, GameState g) {
     PlayerColour activeColour = g.getActiveColour();
     uint64_t ourBB = g.pieceBB({PieceType::INVALID, activeColour});
     uint64_t queensBB = g.pieceBB({PieceType::QUEEN, activeColour});
@@ -176,9 +167,7 @@ std::vector<Move> MoveGen::generateQueenMoves(GameState g) {
     return moves;
 }
 
-std::vector<Move> MoveGen::generateKingMoves(GameState g) {
-    std::vector<Move> moves;
-
+std::vector<Move> MoveGen::generateKingMoves(std::vector<Move> moves, GameState g) {
     PlayerColour activeColour = g.getActiveColour();
     uint64_t kingsBB = g.pieceBB({PieceType::KING, activeColour});
 
@@ -199,9 +188,7 @@ std::vector<Move> MoveGen::generateKingMoves(GameState g) {
     return moves;
 }
 
-std::vector<Move> MoveGen::generateKnightMoves(GameState g) {
-    std::vector<Move> moves;
-
+std::vector<Move> MoveGen::generateKnightMoves(std::vector<Move> moves, GameState g) {
     PlayerColour activeColour = g.getActiveColour();
     uint64_t knightsBB = g.pieceBB({PieceType::KNIGHT, activeColour});
 
@@ -222,33 +209,31 @@ std::vector<Move> MoveGen::generateKnightMoves(GameState g) {
     return moves;
 }
 
-std::vector<Move> MoveGen::generatePawnCaptures(GameState g) {
+std::vector<Move> MoveGen::generatePawnCaptures(std::vector<Move> moves, GameState g) {
     PlayerColour activeColour = g.getActiveColour();
 
-    std::vector<Move> moves;
-    
-    uint64_t;
-    uint64_t;
+    uint64_t myPawns;
+    uint64_t enemyPieces;
     uint64_t lc;
-    uint64_t rc;;
+    uint64_t rc;
     uint64_t promoRank;
     int rcOffset;
     int lcOffset;
 
     if (activeColour == PlayerColour::BLACK) {
-        uint64_t myPawns = g.pieceBB({PieceType::PAWN, activeColour});
-        uint64_t enemyPieces = g.pieceBB({PieceType::INVALID, PlayerColour::BLACK});
-        uint64_t lc = ((~Rays::FILE_A & myPawns) >> 9) & enemyPieces;
-        uint64_t rc = ((~Rays::FILE_H & myPawns) >> 7) & enemyPieces;
-        uint64_t promoRank = Rays::RANK_1;
+        myPawns = g.pieceBB({PieceType::PAWN, activeColour});
+        enemyPieces = g.pieceBB({PieceType::INVALID, PlayerColour::BLACK});
+        lc = ((~Rays::FILE_A & myPawns) >> 9) & enemyPieces;
+        rc = ((~Rays::FILE_H & myPawns) >> 7) & enemyPieces;
+        promoRank = Rays::RANK_1;
         rcOffset = 7;
         lcOffset = 9;
     } else {
-        uint64_t myPawns = g.pieceBB({PieceType::PAWN, activeColour});
-        uint64_t enemyPieces = g.pieceBB({PieceType::INVALID, PlayerColour::BLACK});
-        uint64_t lc = ((~Rays::FILE_A & myPawns) << 7) & enemyPieces;
-        uint64_t rc = ((~Rays::FILE_H & myPawns) << 9) & enemyPieces;
-        uint64_t promoRank = Rays::RANK_8;
+        myPawns = g.pieceBB({PieceType::PAWN, activeColour});
+        enemyPieces = g.pieceBB({PieceType::INVALID, PlayerColour::BLACK});
+        lc = ((~Rays::FILE_A & myPawns) << 7) & enemyPieces;
+        rc = ((~Rays::FILE_H & myPawns) << 9) & enemyPieces;
+        promoRank = Rays::RANK_8;
         rcOffset = -9;
         lcOffset = -7;
     }
@@ -261,10 +246,9 @@ std::vector<Move> MoveGen::generatePawnCaptures(GameState g) {
     return moves;
 }
 
-std::vector<Move> MoveGen::generatePawnPushes(GameState g) {
+std::vector<Move> MoveGen::generatePawnPushes(std::vector<Move> moves, GameState g) {
     PlayerColour activeColour = g.getActiveColour();
 
-    std::vector<Move> moves;
     if (activeColour == PlayerColour::WHITE) {
         uint64_t singlePushes = ((g.pieceBB({PieceType::PAWN, activeColour}) & ~Rays::RANK_7) << 8) & g.getEmptyBB();
         extractMoves(moves, singlePushes, -8, PieceType::PAWN, MoveFlag::QUIET);
@@ -280,10 +264,9 @@ std::vector<Move> MoveGen::generatePawnPushes(GameState g) {
     return moves;
 }
 
-std::vector<Move> MoveGen::generatePawnPromotions(GameState g) {
+std::vector<Move> MoveGen::generatePawnPromotions(std::vector<Move> moves, GameState g) {
     PlayerColour activeColour = g.getActiveColour();
 
-    std::vector<Move> moves;
     if (activeColour == PlayerColour::WHITE) {
         uint64_t promoMoves = ((g.pieceBB({PieceType::PAWN, activeColour}) & Rays::RANK_7) << 8) & g.getEmptyBB();
         addPromotionMoves(moves, promoMoves, -8);
@@ -316,4 +299,24 @@ void MoveGen::extractMoves(std::vector<Move>& moves, uint64_t bb, int offset, Pi
 
         moves.push_back(Move(from, to, moving, PieceType::INVALID, -1, -1));
     }
+}
+
+std::vector<Move> MoveGen::generatePseudolegalMoves(GameState g) {
+    constexpr size_t MAX_POSITION_MOVES = 200;
+
+    std::vector<Move> moves;
+    moves.reserve(MAX_POSITION_MOVES);
+
+    generatePawnPushes(moves, g);
+    generatePawnCaptures(moves, g);
+    generatePawnPromotions(moves, g);
+    generateEnPassant(moves, g);
+    generateKnightMoves(moves, g);
+    generateBishopMoves(moves, g);
+    generateRookMoves(moves, g);
+    generateQueenMoves(moves, g);
+    generateKingMoves(moves, g);
+    generateKingMoves(moves, g);
+    
+    return moves;
 }
